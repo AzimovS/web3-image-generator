@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import preview from "../../public/preview.png";
 import { getRandomPrompt } from "../../utils";
+import { Loader } from "./_components/Loader";
 import { useAccount } from "wagmi";
 
 const ImageGen = () => {
@@ -18,9 +19,10 @@ const ImageGen = () => {
 
   const generateImage = async () => {
     if (form.prompt) {
+      // post our prompt to our backend
       try {
         setGeneratingImg(true);
-        const response = await fetch("http://localhost:8080/api/v1/dalle", {
+        const response = await fetch("/api/openai", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -31,6 +33,7 @@ const ImageGen = () => {
         });
 
         const data = await response.json();
+        console.log(data);
         setForm({ ...form, photo: `data:image/jpeg;base64,${data.photo}` });
       } catch (err) {
         alert(err);
@@ -84,9 +87,9 @@ const ImageGen = () => {
 
       <form className="mt-5 max-w-3xl" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-5">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex w-[32rem] items-center gap-2 mb-2">
             <textarea
-              className="border-primary bg-base-100 text-base-content p-2 mr-2 w-full md:w-2/3 lg:w-2/3 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
+              className="border-primary bg-base-100 text-base-content p-2 mt-5 mr-2 w-full md:w-2/3 lg:w-2/3 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
               value={form.prompt}
               placeholder="Provide the prompt or generate"
               onChange={e => setForm({ ...form, prompt: e.target.value })}
@@ -104,7 +107,7 @@ const ImageGen = () => {
 
             {generatingImg && (
               <div className="absolute inset-0 z-0 flex justify-center items-center bg-[rgba(0,0,0,0.5)] rounded-lg">
-                {/* <Loader /> */}
+                <Loader />
               </div>
             )}
           </div>
@@ -116,19 +119,20 @@ const ImageGen = () => {
             onClick={generateImage}
             className="text-white bg-green-700 font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center"
           >
-            {generatingImg ? "Generating..." : "Generate"}
+            {generatingImg ? "Generating..." : "Generate Image"}
           </button>
         </div>
 
         <div className="mt-10">
           <p className="mt-2 text-[#666e75] text-[14px]">
-            Once you have created the image you want, you can share it with others in the community
+            Please mint an image to not loose it.
+            {/* Once you have created the image you want, you can share it with others in the community */}
           </p>
           <button
             type="submit"
             className="mt-3 text-white bg-[#6469ff] font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center"
           >
-            {loading ? "Sharing..." : "Share with the community"}
+            {loading ? "Sharing..." : "MINT NFT"}
           </button>
         </div>
       </form>
