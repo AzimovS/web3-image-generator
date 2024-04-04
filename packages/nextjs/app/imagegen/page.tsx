@@ -9,7 +9,7 @@ import { useAccount } from "wagmi";
 const ImageGen = () => {
   const { address: connectedAddress } = useAccount();
   const [form, setForm] = useState({
-    address: connectedAddress,
+    name: connectedAddress,
     prompt: "",
     photo: "",
   });
@@ -52,14 +52,14 @@ const ImageGen = () => {
       setLoading(true);
 
       try {
-        const response = await fetch("http://localhost:8080/api/v1/post", {
+        const response = await fetch("/api/post", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(form),
         });
-
+        console.log(response);
         await response.json();
         // navigate("/");
       } catch (error) {
@@ -132,7 +132,7 @@ const ImageGen = () => {
             type="submit"
             className="mt-3 text-white bg-[#6469ff] font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center"
           >
-            {loading ? "Sharing..." : "MINT NFT"}
+            {loading ? "Sharing..." : "Share"}
           </button>
         </div>
       </form>

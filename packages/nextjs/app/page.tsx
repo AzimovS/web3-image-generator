@@ -1,69 +1,120 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Loader } from "./imagegen/_components/Loader";
 import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Address } from "~~/components/scaffold-eth";
+import Card from "~~/components/Card";
+import { Post } from "~~/types/utils";
+
+interface RenderCardsProps {
+  data: Post[];
+  title: string;
+}
+
+const RenderCards: React.FC<RenderCardsProps> = ({ data, title }) => {
+  if (data?.length > 0) return data.map(post => <Card key={post._id} {...post} />);
+
+  return <h2 className="mt-5 font-bold text-[#6469ff] text-xs uppercase">{title}</h2>;
+};
 
 const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
+
+  const [searchText, setSearchText] = useState<string>("");
+  const [searchedResults, setSearchedResults] = useState<Post[]>([]);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout>();
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+
+      try {
+        const response = await fetch("/api/post", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          setAllPosts(result.reverse());
+        }
+      } catch (error) {
+        alert(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    clearTimeout(searchTimeout!);
+    setSearchText(e.target.value);
+
+    setSearchTimeout(
+      setTimeout(() => {
+        const searchResults = allPosts.filter(
+          item =>
+            item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+            item.prompt.toLowerCase().includes(searchText.toLowerCase()),
+        );
+        setSearchedResults(searchResults);
+      }, 500),
+    );
+  };
 
   return (
     <>
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
+      <section className="max-w-7xl mx-auto">
+        <div>
           <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
+            <span className="mt-10 block text-4xl font-bold">The Community Showcase</span>
           </h1>
-          <div className="flex justify-center items-center space-x-2">
-            <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} />
-          </div>
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/nextjs/app/page.tsx
-            </code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              YourContract.sol
-            </code>{" "}
-            in{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/hardhat/contracts
-            </code>
+          <p className="text-center block text-[#666e75] text-[14px]">
+            Browse through a collection of imaginative and visually stunning images genereated by AI
           </p>
         </div>
 
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contracts
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-          </div>
+        <div className="mt-5 text-center">
+          <input
+            type="text"
+            name="text"
+            className="border-primary bg-base-100 text-base-content p-2 mr-2 w-full md:w-1/2 lg:w-2/3 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
+            placeholder="Search prompt or address"
+            value={searchText}
+            onChange={handleSearchChange}
+            required
+          />
         </div>
-      </div>
+
+        <div className="mt-10 max-w-4xl">
+          {loading ? (
+            <div className="flex justify-center items-center">
+              {" "}
+              <Loader />{" "}
+            </div>
+          ) : (
+            <>
+              {searchText && (
+                <h2 className="font-medium text-[#666e75] text-xl mb-3">
+                  Showing results for <span className="text-[#222328]">{searchText}</span>
+                </h2>
+              )}
+              <div className="grid lg:grid-cols-3 sm:grid-cols-2 xs:grid-cols-2 grid-cols-1 gap-3">
+                {searchText ? (
+                  <RenderCards data={searchedResults} title="No search results found" />
+                ) : (
+                  <RenderCards data={allPosts} title="No posts found" />
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </section>
     </>
   );
 };
