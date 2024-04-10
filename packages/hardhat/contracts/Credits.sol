@@ -12,14 +12,14 @@ import "hardhat/console.sol";
  * It also allows the owner to withdraw the Ether in the contract
  * @author BuidlGuidl
  */
-contract YourContract {
+contract Credits {
 	// State Variables
 	address public immutable owner;
-	mapping(address => uint256) public pointsBalance;
+	mapping(address => uint256) public creditsBalance;
 	uint256 public topUpCost = 0.00005 ether;
 
-	event PointsToppedUp(address indexed user, uint256 amount);
-	event PointsWithdrawn(address indexed user);
+	event CreditsToppedUp(address indexed user, uint256 amount);
+	event CreditsWithdrawn(address indexed user);
 	event EtherWithdrawn(address indexed to, uint256 amount);
 
 	// Constructor: Called once on contract deployment
@@ -36,24 +36,24 @@ contract YourContract {
 		_;
 	}
 
-	function topUpPoints() external payable {
+	function topUpCredits() external payable {
 		require(msg.value >= topUpCost, "Insufficient value sent");
 
-		uint256 pointsToAdd = msg.value / topUpCost;
-		pointsBalance[msg.sender] += pointsToAdd;
+		uint256 creditsToAdd = msg.value / topUpCost;
+		creditsBalance[msg.sender] += creditsToAdd;
 
-		emit PointsToppedUp(msg.sender, pointsToAdd);
+		emit CreditsToppedUp(msg.sender, creditsToAdd);
 	}
 
-	function withdrawPoint() external {
+	function withdrawCredit() external {
 		require(
-			pointsBalance[msg.sender] > 0,
-			"Insufficient points balance"
+			creditsBalance[msg.sender] > 0,
+			"Insufficient credits balance"
 		);
 
-		pointsBalance[msg.sender] -= 1;
+		creditsBalance[msg.sender] -= 1;
 
-		emit PointsWithdrawn(msg.sender);
+		emit CreditsWithdrawn(msg.sender);
 	}
 
 	function setTopUpCost(uint256 _newCost) external isOwner {
