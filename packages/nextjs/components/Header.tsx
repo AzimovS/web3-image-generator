@@ -4,9 +4,10 @@ import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAccount } from "wagmi";
 import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
-import { useOutsideClick } from "~~/hooks/scaffold-eth";
+import { useOutsideClick, useScaffoldContractRead } from "~~/hooks/scaffold-eth";
 
 type HeaderMenuLink = {
   label: string;
@@ -64,8 +65,16 @@ export const HeaderMenuLinks = () => {
  * Site header
  */
 export const Header = () => {
+  const { address: connectedAddress } = useAccount();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const burgerMenuRef = useRef<HTMLDivElement>(null);
+
+  const { data: numCredits } = useScaffoldContractRead({
+    contractName: "YourContract",
+    functionName: "pointsBalance",
+    args: [connectedAddress],
+  });
+
   useOutsideClick(
     burgerMenuRef,
     useCallback(() => setIsDrawerOpen(false), []),
@@ -110,6 +119,7 @@ export const Header = () => {
         </ul>
       </div>
       <div className="navbar-end flex-grow mr-4">
+        <p className="px-3 py-2 mr-4 font-medium text-white bg-blue-500 rounded-md">{numCredits?.toString()} Credits</p>
         <RainbowKitCustomConnectButton />
         <FaucetButton />
       </div>
