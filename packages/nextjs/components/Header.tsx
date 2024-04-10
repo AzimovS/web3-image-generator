@@ -70,9 +70,10 @@ export const Header = () => {
   const burgerMenuRef = useRef<HTMLDivElement>(null);
 
   const { data: numCredits } = useScaffoldContractRead({
-    contractName: "YourContract",
-    functionName: "pointsBalance",
+    contractName: "Credits",
+    functionName: "creditsBalance",
     args: [connectedAddress],
+    watch: true,
   });
 
   useOutsideClick(

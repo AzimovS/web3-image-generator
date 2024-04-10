@@ -12,20 +12,21 @@ const Profile: NextPage = () => {
   const topUpCost = 0.00005;
 
   const { data: numCredits } = useScaffoldContractRead({
-    contractName: "YourContract",
-    functionName: "pointsBalance",
+    contractName: "Credits",
+    functionName: "creditsBalance",
     args: [connectedAddress],
+    watch: true,
   });
 
   const { writeAsync: topUpCredits } = useScaffoldContractWrite({
-    contractName: "YourContract",
-    functionName: "topUpPoints",
+    contractName: "Credits",
+    functionName: "topUpCredits",
     value: parseEther((topUpCost * creditsToBuy).toString()),
   });
 
   const { writeAsync: withdrawPoint } = useScaffoldContractWrite({
-    contractName: "YourContract",
-    functionName: "withdrawPoint",
+    contractName: "Credits",
+    functionName: "withdrawCredit",
   });
 
   return (
