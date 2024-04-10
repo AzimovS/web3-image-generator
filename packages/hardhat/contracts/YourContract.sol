@@ -15,18 +15,12 @@ import "hardhat/console.sol";
 contract YourContract {
 	// State Variables
 	address public immutable owner;
-	string public greeting = "Building Unstoppable Apps!!!";
-	bool public premium = false;
-	uint256 public totalCounter = 0;
-	mapping(address => uint) public userGreetingCounter;
+	mapping(address => uint256) public pointsBalance;
+	uint256 public topUpCost = 0.00005 ether;
 
-	// Events: a way to emit log statements from smart contract that can be listened to by external parties
-	event GreetingChange(
-		address indexed greetingSetter,
-		string newGreeting,
-		bool premium,
-		uint256 value
-	);
+	event PointsToppedUp(address indexed user, uint256 amount);
+	event PointsWithdrawn(address indexed user);
+	event EtherWithdrawn(address indexed to, uint256 amount);
 
 	// Constructor: Called once on contract deployment
 	// Check packages/hardhat/deploy/00_deploy_your_contract.ts
@@ -42,42 +36,39 @@ contract YourContract {
 		_;
 	}
 
-	/**
-	 * Function that allows anyone to change the state variable "greeting" of the contract and increase the counters
-	 *
-	 * @param _newGreeting (string memory) - new greeting to save on the contract
-	 */
-	function setGreeting(string memory _newGreeting) public payable {
-		// Print data to the hardhat chain console. Remove when deploying to a live network.
-		console.log(
-			"Setting new greeting '%s' from %s",
-			_newGreeting,
-			msg.sender
-		);
+	function topUpPoints() external payable {
+		require(msg.value >= topUpCost, "Insufficient value sent");
 
-		// Change state variables
-		greeting = _newGreeting;
-		totalCounter += 1;
-		userGreetingCounter[msg.sender] += 1;
+		uint256 pointsToAdd = msg.value / topUpCost;
+		pointsBalance[msg.sender] += pointsToAdd;
 
-		// msg.value: built-in global variable that represents the amount of ether sent with the transaction
-		if (msg.value > 0) {
-			premium = true;
-		} else {
-			premium = false;
-		}
-
-		// emit: keyword used to trigger an event
-		emit GreetingChange(msg.sender, _newGreeting, msg.value > 0, msg.value);
+		emit PointsToppedUp(msg.sender, pointsToAdd);
 	}
 
-	/**
-	 * Function that allows the owner to withdraw all the Ether in the contract
-	 * The function can only be called by the owner of the contract as defined by the isOwner modifier
-	 */
-	function withdraw() public isOwner {
-		(bool success, ) = owner.call{ value: address(this).balance }("");
-		require(success, "Failed to send Ether");
+	function withdrawPoint() external {
+		require(
+			pointsBalance[msg.sender] > 0,
+			"Insufficient points balance"
+		);
+
+		pointsBalance[msg.sender] -= 1;
+
+		emit PointsWithdrawn(msg.sender);
+	}
+
+	function setTopUpCost(uint256 _newCost) external isOwner {
+		topUpCost = _newCost;
+	}
+
+	function withdrawEther(address _to, uint256 _amount) external isOwner {
+		require(
+			address(this).balance >= _amount,
+			"Insufficient contract balance"
+		);
+
+		payable(_to).transfer(_amount);
+
+		emit EtherWithdrawn(_to, _amount);
 	}
 
 	/**
