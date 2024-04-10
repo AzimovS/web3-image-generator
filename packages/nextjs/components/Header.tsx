@@ -20,12 +20,12 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/",
   },
   {
-    label: "Text to Image",
-    href: "/imagegen",
+    label: "Profile",
+    href: "/profile",
   },
   {
-    label: "Minted NFTs",
-    href: "/minted/",
+    label: "Text to Image",
+    href: "/imagegen",
   },
   {
     label: "Debug Contracts",

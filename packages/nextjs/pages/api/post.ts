@@ -31,8 +31,6 @@ export default async function handler(req: GenerateRequest, res: NextApiResponse
   if (req.method === "GET") {
     try {
       const posts = await Post.find({});
-      console.log(posts);
-      //   return NextResponse.json({ posts }, { status: 200 });
       res.status(200).json(posts);
     } catch (error) {
       return NextResponse.json({ message: "Error", error }, { status: 500 });
