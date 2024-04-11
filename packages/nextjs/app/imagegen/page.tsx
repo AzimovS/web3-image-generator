@@ -5,6 +5,8 @@ import preview from "../../public/preview.png";
 import { getRandomPrompt } from "../../utils";
 import { Loader } from "./_components/Loader";
 import { useAccount } from "wagmi";
+import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { notification } from "~~/utils/scaffold-eth";
 
 const ImageGen = () => {
   const { address: connectedAddress } = useAccount();
@@ -17,8 +19,27 @@ const ImageGen = () => {
   const [generatingImg, setGeneratingImg] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const {
+    write: withdrawPoint,
+    isSuccess: isSuccessWithdraw,
+    isError: isErrorWithdraw,
+  } = useScaffoldContractWrite({
+    contractName: "Credits",
+    functionName: "withdrawCredit",
+  });
+
   const generateImage = async () => {
     if (form.prompt) {
+      withdrawPoint();
+      console.log(isSuccessWithdraw, isErrorWithdraw);
+      if (!isErrorWithdraw && !isSuccessWithdraw) {
+        notification.error("Please try one more time.");
+        return;
+      } else if (isErrorWithdraw) {
+        notification.error("You don't have enough credits. Please buy credits in the profile section.");
+        return;
+      }
+
       // post our prompt to our backend
       try {
         setGeneratingImg(true);
