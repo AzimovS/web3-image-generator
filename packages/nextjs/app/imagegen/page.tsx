@@ -20,7 +20,7 @@ const ImageGen = () => {
   const [loading, setLoading] = useState(false);
 
   const {
-    write: withdrawPoint,
+    write: withdrawCredit,
     isSuccess: isSuccessWithdraw,
     isError: isErrorWithdraw,
   } = useScaffoldContractWrite({
@@ -30,7 +30,7 @@ const ImageGen = () => {
 
   const generateImage = async () => {
     if (form.prompt) {
-      withdrawPoint();
+      withdrawCredit();
       console.log(isSuccessWithdraw, isErrorWithdraw);
       if (!isErrorWithdraw && !isSuccessWithdraw) {
         notification.error("Please try one more time.");
@@ -146,14 +146,15 @@ const ImageGen = () => {
 
         <div className="mt-10">
           <p className="mt-2 text-[#666e75] text-[14px]">
-            Please mint an image to not loose it.
-            {/* Once you have created the image you want, you can share it with others in the community */}
+            Please save an image to not loose it.
+            <br />
+            Once you have saved the image, you can check it in profile section.
           </p>
           <button
             type="submit"
             className="mt-3 text-white bg-[#6469ff] font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center"
           >
-            {loading ? "Sharing..." : "Share"}
+            {loading ? "Saving..." : "Save"}
           </button>
         </div>
       </form>
