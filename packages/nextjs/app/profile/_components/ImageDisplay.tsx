@@ -6,7 +6,43 @@ import { Loader } from "~~/app/imagegen/_components/Loader";
 import { Post } from "~~/types/utils";
 import { downloadImage } from "~~/utils";
 
+interface DialogProps {
+  description: string;
+  imageUrl: string;
+  onClose: (stateChange: boolean) => void;
+}
+
+const Dialog: React.FC<DialogProps> = ({ description, imageUrl, onClose }) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-gray-800 p-8 rounded-lg flex">
+        <div className="w-1/2 pr-4">
+          <img src={imageUrl} alt="Preview" className="w-full rounded-lg" />
+        </div>
+        <div className="w-1/2 flex flex-col justify-between">
+          <div>
+            <h2 className="text-lg mt-40">Description</h2>
+            <p className="text-md">{description}</p>
+          </div>
+          <div className="flex justify-center mt-4">
+            <button onClick={() => onClose(false)} className="bg-blue-500 text-white px-4 py-2 rounded-md mr-4">
+              Back
+            </button>
+            <button className="bg-green-600 text-white px-4 py-2 rounded-md">Mint</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const SingleImageDisplay = ({ prompt, photo }: Post) => {
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+
+  const handleIsShowDialog = (change: boolean) => {
+    setDialogOpen(change);
+  };
+
   return (
     <div className="rounded-xs group relative shadow-card hover:shadow-cardhover card">
       <img className="w-full h-auto object-cover rounded-xl" src={photo} alt={prompt} />
@@ -21,6 +57,14 @@ const SingleImageDisplay = ({ prompt, photo }: Post) => {
           >
             <img src={download.src} alt="download" className="w-6 h-6 object-contain invert" />
           </button>
+          <button
+            type="button"
+            onClick={() => handleIsShowDialog(true)}
+            className="outline-none bg-gray-600 rounded-md p-1 text-xs"
+          >
+            Mint as NFT
+          </button>
+          {dialogOpen && <Dialog description={prompt} imageUrl={photo} onClose={handleIsShowDialog} />}
         </div>
       </div>
     </div>
@@ -61,8 +105,6 @@ export const ImageDisplay = ({ connectedAddress }: { connectedAddress: string })
 
     fetchPosts();
   }, []);
-
-  //   if (nfts.length === 0) return <p>{`You don't have any NFTs yet.`}</p>;
   return (
     <div className="grid md:grid-cols-4 gap-x-4 gap-y-6 grid-cols-2">
       {/* {nfts?.map((nft, id) => (
@@ -79,7 +121,7 @@ export const ImageDisplay = ({ connectedAddress }: { connectedAddress: string })
           <Loader />
         </div>
       ) : (
-        <RenderCards data={allPosts} title="No posts found" />
+        <RenderCards data={allPosts} title="No images found" />
       )}
     </div>
   );
