@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ImageDisplay } from "./_components/ImageDisplay";
 import type { NextPage } from "next";
 import { parseEther } from "viem";
 import { useAccount } from "wagmi";
@@ -30,10 +31,10 @@ const Profile: NextPage = () => {
   });
 
   return (
-    <div className="mt-10 text-center max-w-7xl mx-auto">
+    <div className="mt-10 text-center max-w-5xl mx-auto">
       <div className="p-4 rounded-md shadow-md">
         <h2 className="text-md font-bold mb-4">Your Balance: {Number(numCredits)} credits</h2>
-        <div className="flex items-center space-x-4 mb-4">
+        <div className="flex items-center justify-center space-x-4 mb-4">
           <label htmlFor="creditsToBuy" className="text-sm">
             Buy Credits:{" "}
           </label>
@@ -63,6 +64,25 @@ const Profile: NextPage = () => {
       >
         Withdraw
       </button>
+
+      {connectedAddress && (
+        <div>
+          <p className="mb-3 font-bold">My NFTs</p>
+          {/* <NFTDisplay
+          nfts={(userTokens?.[0]?.["result"] as BigNumberish[]) || []}
+          refetchUserTokens={refetchUserTokens}
+          nftContract={nftContract}
+          tokenContract={tokenContract}
+        /> */}
+          <p className="mt-5 mb-3 font-bold">My Images</p>
+          <ImageDisplay connectedAddress={connectedAddress} />
+          {/* <StakedNFTDisplay
+          nfts={(userTokens?.[1]?.["result"] as BigNumberish[]) || []}
+          refetchUserTokens={refetchUserTokens}
+          tokenContract={tokenContract}
+        /> */}
+        </div>
+      )}
     </div>
   );
 };
