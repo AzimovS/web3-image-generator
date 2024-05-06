@@ -5,7 +5,7 @@ import preview from "../../public/preview.png";
 import { getRandomPrompt } from "../../utils";
 import { Loader } from "./_components/Loader";
 import { useAccount } from "wagmi";
-import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
 const ImageGen = () => {
@@ -19,6 +19,12 @@ const ImageGen = () => {
   const [generatingImg, setGeneratingImg] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const { data: numCredits } = useScaffoldContractRead({
+    contractName: "Credits",
+    functionName: "creditsBalance",
+    args: [connectedAddress],
+  });
+
   const {
     write: withdrawCredit,
     isSuccess: isSuccessWithdraw,
@@ -30,17 +36,17 @@ const ImageGen = () => {
 
   const generateImage = async () => {
     if (form.prompt) {
-      withdrawCredit();
-      console.log(isSuccessWithdraw, isErrorWithdraw);
-      if (!isErrorWithdraw && !isSuccessWithdraw) {
-        notification.error("Please try one more time.");
-        return;
-      } else if (isErrorWithdraw) {
+      if (numCredits != undefined && Number(numCredits) < 1) {
         notification.error("You don't have enough credits. Please buy credits in the profile section.");
         return;
       }
+      await withdrawCredit();
+      console.log(isSuccessWithdraw, isErrorWithdraw);
+      if (isErrorWithdraw) {
+        notification.error("Please try one more time.");
+        return;
+      }
 
-      // post our prompt to our backend
       try {
         setGeneratingImg(true);
         const response = await fetch("/api/openai", {
@@ -103,9 +109,10 @@ const ImageGen = () => {
         <h1 className="text-center">
           <span className="mt-10 block text-4xl font-bold">Generate an Image</span>
         </h1>
+        <h2 className="mt-8 text-md font-bold mb-4 text-center">Your Balance: {Number(numCredits)} credits</h2>
       </div>
 
-      <form className="mt-5 max-w-3xl" onSubmit={handleSubmit}>
+      <form className="max-w-3xl" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-5">
           <div className="flex w-[32rem] items-center gap-2 mb-2">
             <textarea
