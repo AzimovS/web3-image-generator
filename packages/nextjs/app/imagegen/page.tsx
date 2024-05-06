@@ -80,9 +80,8 @@ const ImageGen = () => {
           },
           body: JSON.stringify(form),
         });
-        console.log(response);
         await response.json();
-        // navigate("/");
+        notification.success("Image was saved. You can check in your profile.");
       } catch (error) {
         alert(error);
       } finally {

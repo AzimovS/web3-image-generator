@@ -46,3 +46,5 @@ export const surpriseMePrompts = [
   "A man wanders through the rainy streets of Tokyo, with bright neon signs, 50mm",
   "A Space Shuttle flying above Cape Town, digital art",
 ];
+
+export const pinataLink = "https://azure-qualified-blackbird-912.mypinata.cloud/ipfs";

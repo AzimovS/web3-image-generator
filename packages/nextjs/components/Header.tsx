@@ -73,7 +73,6 @@ export const Header = () => {
     contractName: "Credits",
     functionName: "creditsBalance",
     args: [connectedAddress],
-    watch: true,
   });
 
   useOutsideClick(

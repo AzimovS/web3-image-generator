@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ImageDisplay } from "./_components/ImageDisplay";
+import { NFTDisplay } from "./_components/NFTDisplay";
 import type { NextPage } from "next";
 import { parseEther } from "viem";
 import { useAccount } from "wagmi";
@@ -68,19 +69,9 @@ const Profile: NextPage = () => {
       {connectedAddress && (
         <div>
           <p className="mb-3 font-bold">My NFTs</p>
-          {/* <NFTDisplay
-          nfts={(userTokens?.[0]?.["result"] as BigNumberish[]) || []}
-          refetchUserTokens={refetchUserTokens}
-          nftContract={nftContract}
-          tokenContract={tokenContract}
-        /> */}
+          <NFTDisplay connectedAddress={connectedAddress} />
           <p className="mt-5 mb-3 font-bold">My Images</p>
           <ImageDisplay connectedAddress={connectedAddress} />
-          {/* <StakedNFTDisplay
-          nfts={(userTokens?.[1]?.["result"] as BigNumberish[]) || []}
-          refetchUserTokens={refetchUserTokens}
-          tokenContract={tokenContract}
-        /> */}
         </div>
       )}
     </div>

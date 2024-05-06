@@ -3,16 +3,20 @@
 import { useEffect, useState } from "react";
 import download from "../../../public/download.png";
 import { Loader } from "~~/app/imagegen/_components/Loader";
+import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
 import { Post } from "~~/types/utils";
 import { downloadImage } from "~~/utils";
+import { notification } from "~~/utils/scaffold-eth";
 
 interface DialogProps {
   description: string;
   imageUrl: string;
   onClose: (stateChange: boolean) => void;
+  onMint: () => void;
+  mintDisabled: boolean;
 }
 
-const Dialog: React.FC<DialogProps> = ({ description, imageUrl, onClose }) => {
+const Dialog: React.FC<DialogProps> = ({ description, imageUrl, onClose, onMint, mintDisabled }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-gray-800 p-8 rounded-lg flex">
@@ -28,7 +32,13 @@ const Dialog: React.FC<DialogProps> = ({ description, imageUrl, onClose }) => {
             <button onClick={() => onClose(false)} className="bg-blue-500 text-white px-4 py-2 rounded-md mr-4">
               Back
             </button>
-            <button className="bg-green-600 text-white px-4 py-2 rounded-md">Mint</button>
+            <button
+              onClick={() => onMint()}
+              className="bg-green-600 text-white px-4 py-2 rounded-md"
+              disabled={mintDisabled}
+            >
+              {mintDisabled ? "Minting..." : "Mint"}
+            </button>
           </div>
         </div>
       </div>
@@ -38,9 +48,41 @@ const Dialog: React.FC<DialogProps> = ({ description, imageUrl, onClose }) => {
 
 const SingleImageDisplay = ({ prompt, photo }: Post) => {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [cid, setCid] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
+
+  const { write: mintItem } = useScaffoldContractWrite({
+    contractName: "NFT",
+    functionName: "awardItem",
+    args: [cid!],
+  });
 
   const handleIsShowDialog = (change: boolean) => {
     setDialogOpen(change);
+  };
+
+  const uploadFile = async () => {
+    try {
+      setUploading(true);
+      const res = await fetch("/api/files", {
+        method: "POST",
+        body: JSON.stringify({ prompt, photo }),
+      });
+      const resData = await res.json();
+      await setCid(resData.IpfsHash);
+      if (cid) {
+        mintItem();
+        handleIsShowDialog(false);
+      } else {
+        console.log(cid);
+        notification.warning("Something went wrong. Please try again.");
+      }
+    } catch (e) {
+      console.log(e);
+      notification.error("Trouble uploading file");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -64,7 +106,15 @@ const SingleImageDisplay = ({ prompt, photo }: Post) => {
           >
             Mint as NFT
           </button>
-          {dialogOpen && <Dialog description={prompt} imageUrl={photo} onClose={handleIsShowDialog} />}
+          {dialogOpen && (
+            <Dialog
+              description={prompt}
+              imageUrl={photo}
+              onClose={handleIsShowDialog}
+              onMint={uploadFile}
+              mintDisabled={uploading}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -107,15 +157,6 @@ export const ImageDisplay = ({ connectedAddress }: { connectedAddress: string })
   }, []);
   return (
     <div className="grid md:grid-cols-4 gap-x-4 gap-y-6 grid-cols-2">
-      {/* {nfts?.map((nft, id) => (
-        <SingleNFTDisplay
-          nftId={Number(nft)}
-          refetchUserTokens={refetchUserTokens}
-          key={id}
-          nftContract={nftContract}
-          tokenContract={tokenContract}
-        />
-      ))} */}
       {loading ? (
         <div className="flex justify-center items-center">
           <Loader />
