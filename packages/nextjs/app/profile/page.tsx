@@ -28,7 +28,7 @@ const Profile: NextPage = () => {
 
   return (
     <div className="mt-10 text-center max-w-5xl mx-auto">
-      <div className="p-4 rounded-md shadow-md">
+      <div className="p-4">
         <h2 className="text-md font-bold mb-4">Your Balance: {Number(numCredits)} credits</h2>
         <div className="flex items-center justify-center space-x-4 mb-4">
           <label htmlFor="creditsToBuy" className="text-sm">
