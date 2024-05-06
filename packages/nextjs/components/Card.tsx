@@ -10,11 +10,8 @@ const Card = ({ name, prompt, photo }: Post) => {
 
         <div className="mt-1 flex justify-between items-center gap-1">
           <div className="flex items-center">
-            <p className="text-white text-[0.6rem]">{name}</p>
+            <p className="text-white text-[0.55rem]">{name}</p>
           </div>
-          {/* <button type="button" onClick={() => downloadImage(_id, photo)} className="outline-none bg-transparent border-none">
-            <img src={download} alt="download" className="w-6 h-6 object-contain invert" />
-          </button> */}
         </div>
       </div>
     </div>

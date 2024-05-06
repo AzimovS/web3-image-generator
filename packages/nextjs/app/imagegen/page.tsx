@@ -25,11 +25,7 @@ const ImageGen = () => {
     args: [connectedAddress],
   });
 
-  const {
-    write: withdrawCredit,
-    isSuccess: isSuccessWithdraw,
-    isError: isErrorWithdraw,
-  } = useScaffoldContractWrite({
+  const { write: withdrawCredit, isError: isErrorWithdraw } = useScaffoldContractWrite({
     contractName: "Credits",
     functionName: "withdrawCredit",
   });
@@ -41,7 +37,6 @@ const ImageGen = () => {
         return;
       }
       await withdrawCredit();
-      console.log(isSuccessWithdraw, isErrorWithdraw);
       if (isErrorWithdraw) {
         notification.error("Please try one more time.");
         return;
@@ -60,7 +55,6 @@ const ImageGen = () => {
         });
 
         const data = await response.json();
-        console.log(data);
         setForm({ ...form, photo: `data:image/jpeg;base64,${data.photo}` });
       } catch (err) {
         alert(err);
