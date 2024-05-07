@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
+import { verifyToken } from "~~/utils";
 
 type ResponseData = {
   success: boolean;
@@ -11,6 +12,8 @@ interface GenerateRequest extends NextApiRequest {
     prompt: string;
     n: number;
     size: string;
+    token: string;
+    address: string;
   };
 }
 
@@ -19,8 +22,16 @@ const openai = new OpenAI({
 });
 
 export default async function handler(req: GenerateRequest, res: NextApiResponse<ResponseData>) {
-  // grab prompt from the front end
   const prompt = await req.body.prompt;
+  const token = await req.body.token;
+  const address = await req.body.address;
+  if (!verifyToken(token, address, prompt)) {
+    res.status(403).json({
+      success: false,
+      error: "You don't have access",
+    });
+    return;
+  }
 
   try {
     const response = await openai.images.generate({

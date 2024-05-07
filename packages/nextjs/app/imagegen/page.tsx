@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import preview from "../../public/preview.png";
-import { getRandomPrompt } from "../../utils";
+import { generateToken, getRandomPrompt } from "../../utils";
 import { Loader } from "./_components/Loader";
 import { useAccount } from "wagmi";
 import { useScaffoldContractRead, useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
@@ -31,19 +31,21 @@ const ImageGen = () => {
   });
 
   const generateImage = async () => {
-    if (form.prompt) {
+    if (form.prompt && connectedAddress) {
       if (numCredits != undefined && Number(numCredits) < 1) {
         notification.error("You don't have enough credits. Please buy credits in the profile section.");
         return;
       }
+      setGeneratingImg(true);
       await withdrawCredit();
+      const token = generateToken(connectedAddress, form.prompt);
       if (isErrorWithdraw) {
         notification.error("Please try one more time.");
+        setGeneratingImg(false);
         return;
       }
 
       try {
-        setGeneratingImg(true);
         const response = await fetch("/api/openai", {
           method: "POST",
           headers: {
@@ -51,6 +53,8 @@ const ImageGen = () => {
           },
           body: JSON.stringify({
             prompt: form.prompt,
+            token: token,
+            address: connectedAddress,
           }),
         });
 
@@ -138,6 +142,7 @@ const ImageGen = () => {
           <button
             type="button"
             onClick={generateImage}
+            disabled={generatingImg}
             className="text-white bg-green-700 font-medium rounded-md text-sm w-full sm:w-auto px-5 py-2.5 text-center"
           >
             {generatingImg ? "Generating..." : "Generate Image"}

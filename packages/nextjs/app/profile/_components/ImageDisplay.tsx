@@ -61,6 +61,13 @@ const SingleImageDisplay = ({ prompt, photo }: Post) => {
     setDialogOpen(change);
   };
 
+  useEffect(() => {
+    if (cid) {
+      mintItem();
+      handleIsShowDialog(false);
+    }
+  }, [cid]);
+
   const uploadFile = async () => {
     try {
       setUploading(true);
@@ -70,13 +77,6 @@ const SingleImageDisplay = ({ prompt, photo }: Post) => {
       });
       const resData = await res.json();
       await setCid(resData.IpfsHash);
-      if (cid) {
-        mintItem();
-        handleIsShowDialog(false);
-      } else {
-        console.log(cid);
-        notification.warning("Something went wrong. Please try again.");
-      }
     } catch (e) {
       console.log(e);
       notification.error("Trouble uploading file");
