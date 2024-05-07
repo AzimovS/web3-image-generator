@@ -31,7 +31,11 @@ const ImageGen = () => {
   });
 
   const generateImage = async () => {
-    if (form.prompt && connectedAddress) {
+    if (!connectedAddress) {
+      notification.error("Please connect first");
+      return;
+    }
+    if (form.prompt) {
       if (numCredits != undefined && Number(numCredits) < 1) {
         notification.error("You don't have enough credits. Please buy credits in the profile section.");
         return;
@@ -107,7 +111,9 @@ const ImageGen = () => {
         <h1 className="text-center">
           <span className="mt-10 block text-4xl font-bold">Generate an Image</span>
         </h1>
-        <h2 className="mt-8 text-md font-bold mb-4 text-center">Your Balance: {Number(numCredits)} credits</h2>
+        {connectedAddress && (
+          <h2 className="mt-8 text-md font-bold mb-4 text-center">Your Balance: {Number(numCredits)} credits</h2>
+        )}
       </div>
 
       <form className="max-w-3xl" onSubmit={handleSubmit}>
