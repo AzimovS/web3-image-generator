@@ -24,8 +24,8 @@ contract Credits {
 
 	// Constructor: Called once on contract deployment
 	// Check packages/hardhat/deploy/00_deploy_your_contract.ts
-	constructor(address _owner) {
-		owner = _owner;
+	constructor() {
+		owner = 0xe5F7e675A48b180eD2C81d0211E23b44ECE9c926;
 	}
 
 	// Modifier: used to define a set of rules that must be met before or after a function is executed
